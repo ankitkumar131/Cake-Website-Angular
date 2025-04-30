@@ -1,0 +1,67 @@
+import { Component, Input, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
+import { Product } from '../../../models/product.model';
+import { CartService } from '../../../services/cart.service';
+import { ToastService } from '../../../services/toast.service';
+
+@Component({
+  selector: 'app-product-card',
+  standalone: true,
+  imports: [CommonModule, RouterModule ],
+  template: `
+    <div class="bg-white rounded-lg shadow-md overflow-hidden">
+      <a [routerLink]="['/products', product.id]" class="product-card group block">
+        <div class="relative overflow-hidden aspect-square">
+          <img
+            [src]="product.image"
+            [alt]="product.name"
+            class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+          />
+          @if (product.featured) {
+            <span class="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded-full">
+              Featured
+            </span>
+          }
+        </div>
+        <div class="p-4">
+          <h3 class="font-semibold text-lg mb-1 text-brand-darkBrown">
+            {{ product.name }}
+          </h3>
+          <p class="text-gray-500 text-sm mb-2 line-clamp-2">
+            {{ product.description }}
+          </p>
+          <div class="flex items-center justify-between mt-3">
+            <span class="font-bold text-lg">{{ product.price.toFixed(2) }}</span>
+            <button
+              (click)="addToCart($event)"
+              class="bg-primary hover:bg-primary/90 text-white px-3 py-1.5 rounded-md text-sm flex items-center"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-1">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <path d="M16 10a4 4 0 0 1-8 0"/>
+              </svg>
+              Add
+            </button>
+          </div>
+        </div>
+      </a>
+    </div>
+  `,
+  styles: ``
+})
+export class ProductCardComponent {
+  @Input({ required: true }) product!: Product;
+  
+  private cartService = inject(CartService);
+  private toastService = inject(ToastService);
+
+  addToCart(event: Event): void {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    this.cartService.addItem(this.product);
+    this.toastService.success('Added to cart', `${this.product.name} has been added to your cart.`);
+  }
+}

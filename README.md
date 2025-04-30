@@ -1,58 +1,100 @@
-# CakeProject
+# Muffin Magic Angular
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.9.
+This is an Angular 19 version of the Muffin Magic Cart e-commerce application.
 
-## Development server
+## Project Overview
 
-To start a local development server, run:
+Muffin Magic Cart (branded as "ThreeMuffins" in the UI) is an e-commerce web application for a bakery business. The application allows users to browse bakery products, add them to a cart, and complete the checkout process.
 
-```bash
-ng serve
-```
+## Tech Stack
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+- **Frontend Framework**: Angular 19
+- **Styling**: Tailwind CSS with custom theming
+- **State Management**: Angular Services with RxJS
+- **Form Handling**: Angular Forms
+- **Routing**: Angular Router
 
-## Code scaffolding
+## Project Structure
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+The project follows a well-organized structure:
+- `/src/app/components`: Reusable UI components
+- `/src/app/services`: Angular services for state management and API calls
+- `/src/app/data`: Mock data for products and orders
+- `/src/app/models`: TypeScript interfaces
+- `/src/app/pages`: Page components for different routes
+- `/src/app/guards`: Route guards for authentication
 
-```bash
-ng generate component component-name
-```
+## Key Features
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### 1. Product Catalog
+- Display of products with images, descriptions, and prices
+- Product categorization (cakes, muffins, pastries, cupcakes, cookies, breads)
+- Featured products section
+- Product detail pages with nutritional information and ingredients
 
-```bash
-ng generate --help
-```
+### 2. Shopping Cart
+- Add/remove products to cart
+- Update product quantities
+- Persistent cart (stored in localStorage)
+- Cart summary with subtotal, tax, and total calculations
 
-## Building
+### 3. User Authentication
+- Login/signup functionality
+- Mock authentication (simulated backend)
+- Protected routes requiring authentication
+- User profile and order history
 
-To build the project run:
+### 4. Checkout Process
+- Multi-step checkout form
+- Shipping information collection
+- Payment method selection (credit card, PayPal)
+- Order confirmation
 
-```bash
-ng build
-```
+### 5. UI/UX Features
+- Responsive design for mobile and desktop
+- Animated transitions
+- Toast notifications for user actions
+- Form validation
+- Loading states
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## Pages
 
-## Running unit tests
+- Home (`/`)
+- Product catalog (`/catalog`)
+- Product details (`/products/:id`)
+- Cart (`/cart`)
+- Checkout (`/checkout`)
+- Order confirmation (`/order-confirmation`)
+- Order history (`/orders`)
+- Order details (`/orders/:id`)
+- Authentication pages (`/login`, `/signup`)
+- Information pages (`/about`, `/contact`, `/faq`, `/terms`)
+- Not found page (`/**`)
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+## Services
 
-```bash
-ng test
-```
+- **AuthService**: Handles user authentication and session management
+- **CartService**: Manages the shopping cart state
+- **ProductService**: Provides product data
+- **OrderService**: Handles order creation and retrieval
+- **ToastService**: Manages toast notifications
 
-## Running end-to-end tests
+## Development Setup
 
-For end-to-end (e2e) testing, run:
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Start the development server: `ng serve`
+4. Open your browser to `http://localhost:4200`
 
-```bash
-ng e2e
-```
+## Build
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+
+## Demo Credentials
+
+For testing purposes, you can use the following credentials:
+- Email: john@example.com
+- Password: password123
 
 ## Additional Resources
 
