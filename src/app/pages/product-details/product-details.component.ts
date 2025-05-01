@@ -44,7 +44,7 @@ export class ProductDetailsComponent implements OnInit {
       
       if (product) {
         // Load related products
-        this.productService.getProductsByCategory(product.category[0]).subscribe(products => {
+        this.productService.getProductsByCategory(product.type[0]).subscribe(products => {
           this.relatedProducts = products
             .filter(p => p.id !== product.id)
             .slice(0, 4);

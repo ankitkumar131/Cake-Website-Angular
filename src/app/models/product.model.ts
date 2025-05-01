@@ -1,4 +1,4 @@
-export type Category = 
+export type Category =
   | 'cakes'
   | 'muffins'
   | 'pastries'
@@ -13,7 +13,7 @@ export interface Product {
   description: string;
   price: number;
   image: string;
-  category: Category[];
+  type: string;
   featured: boolean;
   ingredients?: string[];
   nutrition?: {

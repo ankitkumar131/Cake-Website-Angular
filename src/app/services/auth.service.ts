@@ -3,16 +3,18 @@ import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { delay, tap } from 'rxjs/operators';
 import { User } from '../models/user.model';
 import { mockUsers } from '../data/users';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthService {
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
+  currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
   public isAuthenticated$ = new BehaviorSubject<boolean>(false);
 
-  constructor() {
+  constructor(private http: HttpClient) {
     // Check if user is stored in local storage
     const storedUser = localStorage.getItem('threemuffinsUser');
     if (storedUser) {
@@ -22,52 +24,12 @@ export class AuthService {
     }
   }
 
-  login(email: string, password: string): Observable<User> {
-    // Mock login - would be an API call in a real app
-    const foundUser = mockUsers.find(
-      (u) => u.email === email && u.password === password
-    );
-
-    if (foundUser) {
-      const { password, ...userData } = foundUser;
-      return of(userData as User).pipe(
-        delay(800), // Simulate network delay
-        tap(user => {
-          this.currentUserSubject.next(user);
-          this.isAuthenticated$.next(true);
-          localStorage.setItem('threemuffinsUser', JSON.stringify(user));
-        })
-      );
-    } else {
-      return throwError(() => new Error('Invalid credentials'));
-    }
+  login(data: any) {
+    return this.http.post(`${environment.apiUrl}auth/login`, data);
   }
 
-  signup(name: string, email: string, password: string): Observable<User> {
-    // Mock signup - would be an API call in a real app
-    const existingUser = mockUsers.find((u) => u.email === email);
-    
-    if (existingUser) {
-      return throwError(() => new Error('Email already in use'));
-    } else {
-      const newUser = {
-        id: (mockUsers.length + 1).toString(),
-        name,
-        email,
-      };
-      
-      // In a real app, this would be added to a database
-      mockUsers.push({ ...newUser, password });
-      
-      return of(newUser).pipe(
-        delay(800), // Simulate network delay
-        tap(user => {
-          this.currentUserSubject.next(user);
-          this.isAuthenticated$.next(true);
-          localStorage.setItem('threemuffinsUser', JSON.stringify(user));
-        })
-      );
-    }
+  signup(data: any) {
+    return this.http.post(`${environment.apiUrl}user/add`, data);
   }
 
   logout(): Observable<void> {

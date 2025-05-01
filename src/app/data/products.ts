@@ -1,6 +1,6 @@
 import { Product } from '../models/product.model';
 
-export const products: Product[] = [
+export const products: any[] = [
   {
     id: "1",
     name: "Chocolate Delight Cake",
