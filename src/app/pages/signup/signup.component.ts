@@ -54,15 +54,26 @@ export class SignupComponent implements OnInit {
       password: this.formData.password
     };
     
+    console.log('Submitting user data:', userData);
+    
     this.authService.signup(userData).subscribe({
       next: (response) => {
+        console.log('Signup success response:', response);
         this.loading = false;
         this.toastService.success('Success', 'Account created successfully!');
         this.router.navigate(['/login']);
       },
       error: (error) => {
+        console.error('Detailed signup error:', error);
         this.loading = false;
-        this.error = error.error?.message || 'Signup failed. Please try again.';
+        // Try to extract more specific error message
+        if (error.error && error.error.message) {
+          this.error = error.error.message;
+        } else if (error.status === 0) {
+          this.error = 'Cannot connect to server. Please try again later.';
+        } else {
+          this.error = 'Signup failed. Please try again.';
+        }
       }
     });
   }

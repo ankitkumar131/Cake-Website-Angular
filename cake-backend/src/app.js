@@ -15,10 +15,7 @@ const API_PREF = process.env.API_PREF || "";
 
 app.use(
   cors({
-    origin:
-      process.env.CORS_ORIGIN === "*"
-        ? "*"
-        : process.env.CORS_ORIGIN?.split(","),
+    origin: 'http://localhost:4200',
     credentials: true,
   }),
 );

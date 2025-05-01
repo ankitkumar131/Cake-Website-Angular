@@ -7,6 +7,7 @@ import {
   HttpInterceptorFn
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = localStorage.getItem('token');
@@ -17,6 +18,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
         Authorization: `Bearer ${token}`
       }
     });
+  }
+  
+  // Only set withCredentials for same-origin or configured CORS requests
+  if (req.url.startsWith(environment.apiUrl)) {
+    req = req.clone({ withCredentials: true });
   }
   
   return next(req);
@@ -32,6 +38,11 @@ export class AuthInterceptor implements HttpInterceptor {
           Authorization: `Bearer ${token}`
         }
       });
+    }
+    
+    // Only set withCredentials for same-origin or configured CORS requests
+    if (request.url.startsWith(environment.apiUrl)) {
+      request = request.clone({ withCredentials: true });
     }
     
     return next.handle(request);

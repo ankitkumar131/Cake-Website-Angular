@@ -50,7 +50,13 @@ export class AuthService {
   }
 
   signup(userData: any): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/user/add`, userData);
+    return this.http.post<any>(`${this.apiUrl}/user/add`, userData)
+      .pipe(
+        catchError(error => {
+          console.error('Signup error details:', error);
+          return throwError(() => error);
+        })
+      );
   }
 
   logout(): Observable<any> {
