@@ -1,0 +1,108 @@
+<div class="admin-order-details">
+  <h1>Order Details</h1>
+  
+  <div *ngIf="isLoading" class="loading">Loading...</div>
+  
+  <div *ngIf="!isLoading && order">
+    <div class="order-header">
+      <div class="order-info">
+        <p><strong>Order ID:</strong> {{ order._id }}</p>
+        <p><strong>Date:</strong> {{ order.createdAt | date:'medium' }}</p>
+        <p><strong>Customer:</strong> {{ order.user?.name || 'Guest' }}</p>
+        <p><strong>Email:</strong> {{ order.user?.email || 'N/A' }}</p>
+      </div>
+      
+      <div class="order-status">
+        <div class="status-selector">
+          <label for="status">Status:</label>
+          <select id="status" [(ngModel)]="selectedStatus" [disabled]="isUpdating">
+            <option value="pending">Pending</option>
+            <option value="processing">Processing</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+          <button (click)="updateStatus()" [disabled]="selectedStatus === order.status || isUpdating" class="btn primary">
+            {{ isUpdating ? 'Updating...' : 'Update Status' }}
+          </button>
+        </div>
+        <div class="status-badge" [ngClass]="order.status">
+          {{ order.status }}
+        </div>
+        <div *ngIf="error" class="error-message">
+          {{ error }}
+          <button (click)="loadOrder()" class="refresh-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2"/>
+            </svg>
+            Refresh
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <div class="admin-section">
+      <h2>Items</h2>
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of order.items">
+              <td>
+                <div class="product-cell">
+                  <img [src]="item.product.image" [alt]="item.product.name" />
+                  <span>{{ item.product.name }}</span>
+                </div>
+              </td>
+              <td>{{ item.quantity }}</td>
+              <td>${{ item.price.toFixed(2) }}</td>
+              <td>${{ (item.price * item.quantity).toFixed(2) }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" class="text-right"><strong>Subtotal</strong></td>
+              <td>${{ order.totalAmount.toFixed(2) }}</td>
+            </tr>
+            <tr *ngIf="order.shipping">
+              <td colspan="3" class="text-right"><strong>Shipping</strong></td>
+              <td>${{ order.shipping.toFixed(2) }}</td>
+            </tr>
+            <tr>
+              <td colspan="3" class="text-right"><strong>Total</strong></td>
+              <td>${{ order.totalAmount.toFixed(2) }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+    
+    <div class="admin-section" *ngIf="order.shippingAddress">
+      <h2>Shipping Address</h2>
+      <div class="address-info">
+        <p>{{ order.shippingAddress.name }}</p>
+        <p>{{ order.shippingAddress.street }}</p>
+        <p>{{ order.shippingAddress.city }}, {{ order.shippingAddress.state }} {{ order.shippingAddress.zipCode }}</p>
+        <p>{{ order.shippingAddress.country }}</p>
+      </div>
+    </div>
+    
+    <div class="admin-section">
+      <h2>Payment Information</h2>
+      <div class="payment-info">
+        <p><strong>Payment Method:</strong> {{ order.paymentMethod.type }}</p>
+        <p *ngIf="order.paymentMethod.last4"><strong>Card:</strong> **** **** **** {{ order.paymentMethod.last4 }}</p>
+      </div>
+    </div>
+    
+    <div class="admin-actions">
+      <a routerLink="/admin/orders" class="btn secondary">Back to Orders</a>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,45 @@
+<div class="admin-products">
+  <h1>Manage Products</h1>
+  
+  <div class="admin-actions mb-4">
+    <a routerLink="/admin/products/new" class="btn primary">Add New Product</a>
+  </div>
+  
+  <div class="admin-section">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of products">
+            <td>
+              <div class="product-cell">
+                <img [src]="product.image" [alt]="product.name" />
+                <span>{{ product.name }}</span>
+              </div>
+            </td>
+            <td>{{ product.category[0] }}</td>
+            <td>${{ product.price?.toFixed(2) }}</td>
+            <td>{{ product.stock || 'N/A' }}</td>
+            <td>
+              <div class="action-buttons">
+                <a [routerLink]="['/admin/products', product._id, 'edit']" class="btn small">Edit</a>
+                <button (click)="deleteProduct(product._id)" class="btn small danger">Delete</button>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="products.length === 0">
+            <td colspan="5">No products found</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,78 @@
+.orders-page {
+  background-color: #f9fafb;
+  min-height: calc(100vh - 72px); // Adjust based on your header height
+  
+  h1 {
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  .loading-spinner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid rgba(0, 0, 0, 0.1);
+      border-radius: 50%;
+      border-top-color: #3b82f6;
+      animation: spin 1s ease-in-out infinite;
+      margin-bottom: 1rem;
+    }
+    
+    p {
+      color: #6b7280;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  }
+  
+  .orders-list {
+    .status-badge {
+      display: inline-block;
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      
+      &.pending {
+        background-color: #fef3c7;
+        color: #92400e;
+      }
+      
+      &.processing {
+        background-color: #e0f2fe;
+        color: #0369a1;
+      }
+      
+      &.shipped {
+        background-color: #dcfce7;
+        color: #047857;
+      }
+      
+      &.delivered {
+        background-color: #d1fae5;
+        color: #065f46;
+      }
+      
+      &.cancelled {
+        background-color: #fee2e2;
+        color: #b91c1c;
+      }
+    }
+  }
+  
+  .empty-state {
+    background-color: white;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+}

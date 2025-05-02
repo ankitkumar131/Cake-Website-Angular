@@ -1,8 +1,16 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
-import { delay, tap } from 'rxjs/operators';
+import { catchError, map, tap } from 'rxjs/operators';
 import { User } from '../models/user.model';
-import { mockUsers } from '../data/users';
+import { ApiService } from './api.service';
+
+interface AuthResponse {
+  success: boolean;
+  token: string;
+  data: {
+    user: User;
+  };
+}
 
 @Injectable({
   providedIn: 'root'
@@ -11,70 +19,102 @@ export class AuthService {
   private currentUserSubject = new BehaviorSubject<User | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
   public isAuthenticated$ = new BehaviorSubject<boolean>(false);
+  private tokenKey = 'cakeWebsiteAuthToken';
 
-  constructor() {
-    // Check if user is stored in local storage
-    const storedUser = localStorage.getItem('threemuffinsUser');
-    if (storedUser) {
-      const user = JSON.parse(storedUser);
-      this.currentUserSubject.next(user);
-      this.isAuthenticated$.next(true);
+  constructor(private apiService: ApiService) {
+    // Check if token exists in local storage
+    const token = localStorage.getItem(this.tokenKey);
+    if (token) {
+      this.fetchCurrentUser().subscribe({
+        next: () => {},
+        error: () => this.logout()
+      });
     }
   }
 
   login(email: string, password: string): Observable<User> {
-    // Mock login - would be an API call in a real app
-    const foundUser = mockUsers.find(
-      (u) => u.email === email && u.password === password
-    );
-
-    if (foundUser) {
-      const { password, ...userData } = foundUser;
-      return of(userData as User).pipe(
-        delay(800), // Simulate network delay
-        tap(user => {
-          this.currentUserSubject.next(user);
-          this.isAuthenticated$.next(true);
-          localStorage.setItem('threemuffinsUser', JSON.stringify(user));
+    return this.apiService.post<AuthResponse>('/auth/login', { email, password })
+      .pipe(
+        map(response => {
+          if (response.success && response.token && response.data.user) {
+            // Save token and set current user
+            localStorage.setItem(this.tokenKey, response.token);
+            this.currentUserSubject.next(response.data.user);
+            this.isAuthenticated$.next(true);
+            return response.data.user;
+          } else {
+            throw new Error('Invalid response format');
+          }
+        }),
+        catchError(error => {
+          return throwError(() => new Error(error.error?.message || 'Login failed'));
         })
       );
-    } else {
-      return throwError(() => new Error('Invalid credentials'));
-    }
   }
 
   signup(name: string, email: string, password: string): Observable<User> {
-    // Mock signup - would be an API call in a real app
-    const existingUser = mockUsers.find((u) => u.email === email);
-    
-    if (existingUser) {
-      return throwError(() => new Error('Email already in use'));
-    } else {
-      const newUser = {
-        id: (mockUsers.length + 1).toString(),
-        name,
-        email,
-      };
-      
-      // In a real app, this would be added to a database
-      mockUsers.push({ ...newUser, password });
-      
-      return of(newUser).pipe(
-        delay(800), // Simulate network delay
-        tap(user => {
-          this.currentUserSubject.next(user);
-          this.isAuthenticated$.next(true);
-          localStorage.setItem('threemuffinsUser', JSON.stringify(user));
+    return this.apiService.post<AuthResponse>('/auth/signup', { name, email, password })
+      .pipe(
+        map(response => {
+          if (response.success && response.token && response.data.user) {
+            // Save token and set current user
+            localStorage.setItem(this.tokenKey, response.token);
+            this.currentUserSubject.next(response.data.user);
+            this.isAuthenticated$.next(true);
+            return response.data.user;
+          } else {
+            throw new Error('Invalid response format');
+          }
+        }),
+        catchError(error => {
+          return throwError(() => new Error(error.error?.message || 'Signup failed'));
         })
       );
-    }
   }
 
   logout(): Observable<void> {
+    // Clear token and user data
+    localStorage.removeItem(this.tokenKey);
     this.currentUserSubject.next(null);
     this.isAuthenticated$.next(false);
-    localStorage.removeItem('threemuffinsUser');
     return of(undefined);
+  }
+
+  fetchCurrentUser(): Observable<User> {
+    return this.apiService.get<{success: boolean, data: {user: User}}>('/auth/me')
+      .pipe(
+        map(response => {
+          if (response.success && response.data.user) {
+            this.currentUserSubject.next(response.data.user);
+            this.isAuthenticated$.next(true);
+            return response.data.user;
+          } else {
+            throw new Error('Failed to fetch user data');
+          }
+        }),
+        catchError(error => {
+          this.logout();
+          return throwError(() => new Error('Session expired, please login again'));
+        })
+      );
+  }
+
+  updateProfile(userData: Partial<User>): Observable<User> {
+    return this.apiService.patch<{success: boolean, data: {user: User}}>('/auth/update-profile', userData)
+      .pipe(
+        map(response => {
+          if (response.success && response.data.user) {
+            this.currentUserSubject.next(response.data.user);
+            return response.data.user;
+          } else {
+            throw new Error('Failed to update profile');
+          }
+        })
+      );
+  }
+
+  getAuthToken(): string | null {
+    return localStorage.getItem(this.tokenKey);
   }
 
   get currentUser(): User | null {

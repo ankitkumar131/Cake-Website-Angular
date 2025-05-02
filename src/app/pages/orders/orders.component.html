@@ -1,0 +1,89 @@
+<div class="orders-page">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-semibold mb-8 text-brand-darkBrown">Your Orders</h1>
+    
+    <div *ngIf="isLoading" class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading your orders...</p>
+    </div>
+    
+    <div *ngIf="!isLoading && orders.length === 0" class="empty-state">
+      <div class="text-center py-12">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="mx-auto mb-4 text-gray-400">
+          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+          <line x1="8" y1="21" x2="16" y2="21"></line>
+          <line x1="12" y1="17" x2="12" y2="21"></line>
+        </svg>
+        <h3 class="text-lg font-medium text-gray-900 mb-2">No orders yet</h3>
+        <p class="text-gray-500 mb-6">You haven't placed any orders yet.</p>
+        <a routerLink="/catalog" class="bg-primary hover:bg-primary/90 text-white px-6 py-2 rounded-md inline-block transition-colors">
+          Browse Products
+        </a>
+      </div>
+    </div>
+    
+    <div *ngIf="!isLoading && orders.length > 0" class="orders-list">
+      <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6" *ngFor="let order of orders">
+        <div class="border-b border-gray-200 p-4 md:p-6 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <p class="text-sm text-gray-500">
+              Order placed on <span class="font-medium text-gray-700">{{ formatDate(order.createdAt) }}</span>
+            </p>
+            <p class="text-xs text-gray-400">Order ID: {{ order._id }}</p>
+          </div>
+          
+          <div class="order-status">
+            <span class="status-badge" [ngClass]="order.status">
+              {{ capitalizeFirstLetter(order.status) }}
+            </span>
+          </div>
+        </div>
+        
+        <div class="p-4 md:p-6">
+          <div class="mb-4" *ngFor="let item of order.items">
+            <div class="flex flex-wrap md:flex-nowrap items-center gap-4">
+              <div class="w-20 h-20 bg-gray-100 rounded-md overflow-hidden flex-shrink-0">
+                <img [src]="item.product.image" [alt]="item.product.name" class="w-full h-full object-cover">
+              </div>
+              
+              <div class="flex-grow">
+                <h3 class="font-medium">{{ item.product.name }}</h3>
+                <p class="text-gray-500 text-sm">Quantity: {{ item.quantity }}</p>
+                <p class="text-gray-700">Price: ${{ item.price.toFixed(2) }}</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="border-t border-gray-200 pt-4 mt-4">
+            <div class="flex justify-between text-sm mb-2">
+              <span class="text-gray-600">Total Items:</span>
+              <span>{{ getTotalItems(order) }}</span>
+            </div>
+            <div class="flex justify-between font-medium">
+              <span>Total Amount:</span>
+              <span>${{ order.totalAmount.toFixed(2) }}</span>
+            </div>
+          </div>
+          
+          <div class="mt-6 flex justify-between items-center">
+            <a [routerLink]="['/orders', order._id]" class="text-primary hover:text-primary/80 text-sm font-medium flex items-center gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+              View Details
+            </a>
+            
+            <button 
+              *ngIf="order.status === 'pending'"
+              (click)="cancelOrder(order._id || order.id || '')" 
+              class="text-red-600 hover:text-red-800 text-sm font-medium"
+              [disabled]="order.cancelling"
+            >
+              {{ order.cancelling ? 'Cancelling...' : 'Cancel Order' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

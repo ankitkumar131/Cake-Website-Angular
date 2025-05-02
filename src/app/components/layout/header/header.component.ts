@@ -87,7 +87,13 @@ export class HeaderComponent {
   totalItems = 0;
 
   constructor() {
-    // Update authentication state
+    // Subscribe to authentication state changes
+    this.authService.currentUser$.subscribe(user => {
+      this.user = user;
+      this.isAuthenticated = !!user;
+    });
+    
+    // Initial authentication state
     this.isAuthenticated = this.authService.isAuthenticated;
     this.user = this.authService.currentUser;
     
@@ -104,9 +110,7 @@ export class HeaderComponent {
 
   logout() {
     this.authService.logout().subscribe(() => {
-      // Refresh authentication state
-      this.isAuthenticated = false;
-      this.user = null;
+      // Authentication state will be updated by the subscription
     });
   }
 }

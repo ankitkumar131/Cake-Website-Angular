@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
+import { adminGuard } from './guards/admin.guard';
 
 export const routes: Routes = [
   {
@@ -62,6 +63,45 @@ export const routes: Routes = [
   {
     path: 'terms',
     loadComponent: () => import('./pages/terms/terms.component').then(m => m.TermsComponent)
+  },
+  // Admin Routes
+  {
+    path: 'admin',
+    canActivate: [adminGuard],
+    children: [
+      {
+        path: '',
+        loadComponent: () => import('./pages/admin/admin-dashboard/admin-dashboard.component').then(m => m.AdminDashboardComponent)
+      },
+      {
+        path: 'products',
+        loadComponent: () => import('./pages/admin/admin-products/admin-products.component').then(m => m.AdminProductsComponent)
+      },
+      {
+        path: 'products/new',
+        loadComponent: () => import('./pages/admin/admin-product-form/admin-product-form.component').then(m => m.AdminProductFormComponent)
+      },
+      {
+        path: 'products/:id/edit',
+        loadComponent: () => import('./pages/admin/admin-product-form/admin-product-form.component').then(m => m.AdminProductFormComponent)
+      },
+      {
+        path: 'orders',
+        loadComponent: () => import('./pages/admin/admin-orders/admin-orders.component').then(m => m.AdminOrdersComponent)
+      },
+      {
+        path: 'orders/:id',
+        loadComponent: () => import('./pages/admin/admin-order-details/admin-order-details.component').then(m => m.AdminOrderDetailsComponent)
+      },
+      {
+        path: 'users',
+        loadComponent: () => import('./pages/admin/admin-users/admin-users.component').then(m => m.AdminUsersComponent)
+      },
+      {
+        path: 'users/:id',
+        loadComponent: () => import('./pages/admin/admin-user-details/admin-user-details.component').then(m => m.AdminUserDetailsComponent)
+      }
+    ]
   },
   {
     path: '**',

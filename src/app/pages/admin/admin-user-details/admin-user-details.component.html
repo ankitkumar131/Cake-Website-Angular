@@ -1,0 +1,91 @@
+<div class="admin-user-details">
+  <h1>User Details</h1>
+  
+  <div *ngIf="isLoading" class="loading">Loading...</div>
+  
+  <div *ngIf="!isLoading && user">
+    <div class="user-header">
+      <div class="user-info">
+        <div class="avatar">
+          {{ user.name.charAt(0) }}
+        </div>
+        <div class="user-meta">
+          <h2>{{ user.name }}</h2>
+          <p>{{ user.email }}</p>
+          <div class="role-badge" [ngClass]="user.role">
+            {{ user.role }}
+          </div>
+        </div>
+      </div>
+      
+      <div class="user-actions">
+        <button (click)="toggleActiveStatus()" [ngClass]="user.isActive ? 'danger' : 'primary'" class="btn">
+          {{ user.isActive ? 'Deactivate Account' : 'Activate Account' }}
+        </button>
+      </div>
+    </div>
+    
+    <div class="admin-section">
+      <h2>Account Information</h2>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>User ID</label>
+          <p>{{ user._id }}</p>
+        </div>
+        <div class="info-item">
+          <label>Joined Date</label>
+          <p>{{ user.createdAt | date:'medium' }}</p>
+        </div>
+        <div class="info-item">
+          <label>Status</label>
+          <p>{{ user.isActive ? 'Active' : 'Inactive' }}</p>
+        </div>
+        <div class="info-item">
+          <label>Role</label>
+          <p>{{ user.role }}</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="admin-section">
+      <h2>Order History</h2>
+      <div *ngIf="userOrders.length === 0" class="empty-state">
+        <p>This user has not placed any orders yet.</p>
+      </div>
+      <div *ngIf="userOrders.length > 0" class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let order of userOrders">
+              <td>{{ order._id }}</td>
+              <td>{{ order.createdAt | date }}</td>
+              <td>{{ order.items.length }} item(s)</td>
+              <td>${{ order.totalAmount.toFixed(2) }}</td>
+              <td>
+                <span class="status-badge" [ngClass]="order.status">
+                  {{ order.status }}
+                </span>
+              </td>
+              <td>
+                <a [routerLink]="['/admin/orders', order._id]" class="btn small">View</a>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    
+    <div class="admin-actions">
+      <a routerLink="/admin/users" class="btn secondary">Back to Users</a>
+    </div>
+  </div>
+</div>

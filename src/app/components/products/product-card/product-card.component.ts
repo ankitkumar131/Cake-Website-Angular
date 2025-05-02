@@ -1,9 +1,10 @@
 import { Component, Input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { Product } from '../../../models/product.model';
+import { RouterModule, Router } from '@angular/router';
+import { Product, getProductId } from '../../../models/product.model';
 import { CartService } from '../../../services/cart.service';
 import { ToastService } from '../../../services/toast.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-product-card',
@@ -11,7 +12,7 @@ import { ToastService } from '../../../services/toast.service';
   imports: [CommonModule, RouterModule ],
   template: `
     <div class="bg-white rounded-lg shadow-md overflow-hidden">
-      <a [routerLink]="['/products', product.id]" class="product-card group block">
+      <a [routerLink]="['/products', getProductId(product)]" class="product-card group block">
         <div class="relative overflow-hidden aspect-square">
           <img
             [src]="product.image"
@@ -56,12 +57,32 @@ export class ProductCardComponent {
   
   private cartService = inject(CartService);
   private toastService = inject(ToastService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
+  // Make getProductId available in the template
+  protected getProductId = getProductId;
 
   addToCart(event: Event): void {
     event.preventDefault();
     event.stopPropagation();
     
-    this.cartService.addItem(this.product);
-    this.toastService.success('Added to cart', `${this.product.name} has been added to your cart.`);
+    // Check if user is authenticated
+    if (!this.authService.isAuthenticated) {
+      this.toastService.error('Authentication Required', 'Please log in to add items to your cart.');
+      this.router.navigate(['/login'], { queryParams: { returnUrl: this.router.url } });
+      return;
+    }
+    
+    // Add to cart using the service
+    this.cartService.addItem(this.product).subscribe({
+      next: () => {
+        this.toastService.success('Added to cart', `${this.product.name} has been added to your cart.`);
+      },
+      error: (error) => {
+        console.error('Error adding to cart', error);
+        this.toastService.error('Error', 'Could not add item to cart. Please try again.');
+      }
+    });
   }
 }

@@ -1,0 +1,39 @@
+<div class="admin-orders">
+  <h1>Manage Orders</h1>
+  
+  <div class="admin-section">
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of orders">
+            <td>{{ order._id }}</td>
+            <td>{{ order.user?.name || 'Guest' }}</td>
+            <td>{{ order.createdAt | date }}</td>
+            <td>${{ order.totalAmount.toFixed(2) }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="order.status">
+                {{ order.status }}
+              </span>
+            </td>
+            <td>
+              <a [routerLink]="['/admin/orders', order._id]" class="btn small">View</a>
+            </td>
+          </tr>
+          <tr *ngIf="orders.length === 0">
+            <td colspan="6">No orders found</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

@@ -42,7 +42,7 @@ import { Order } from '../../models/order.model';
           <span 
             class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
             [ngClass]="{
-              'bg-green-100 text-green-800': order.status === 'completed',
+              'bg-green-100 text-green-800': order.status === 'delivered',
               'bg-blue-100 text-blue-800': order.status === 'processing',
               'bg-yellow-100 text-yellow-800': order.status === 'pending',
               'bg-red-100 text-red-800': order.status === 'cancelled'

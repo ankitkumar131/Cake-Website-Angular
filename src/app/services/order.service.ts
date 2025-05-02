@@ -1,56 +1,92 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { ApiService } from './api.service';
 import { Order } from '../models/order.model';
-import { orders, getUserOrders, getOrderById } from '../data/orders';
-import { CartService, CartItem } from './cart.service';
+
+interface OrderResponse {
+  success: boolean;
+  data: {
+    order: Order;
+  };
+}
+
+interface OrdersResponse {
+  success: boolean;
+  results: number;
+  data: {
+    orders: Order[];
+  };
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrderService {
-  constructor(private cartService: CartService) { }
+  constructor(private apiService: ApiService) {}
 
-  getAllOrders(): Observable<Order[]> {
-    return of(orders);
+  // Create a new order
+  createOrder(orderData: { 
+    shippingAddress: any, 
+    paymentMethod: any 
+  }): Observable<Order> {
+    return this.apiService.post<OrderResponse>('/orders', orderData)
+      .pipe(map(response => response.data.order));
   }
 
-  getOrderById(id: string): Observable<Order | undefined> {
-    return of(getOrderById(id));
+  // Get all orders for the current user
+  getMyOrders(): Observable<Order[]> {
+    return this.apiService.get<OrdersResponse>('/orders/my-orders')
+      .pipe(map(response => response.data.orders));
   }
 
+  // Get all orders for a specific user (admin function)
   getUserOrders(userId: string): Observable<Order[]> {
-    return of(getUserOrders(userId));
+    return this.apiService.get<OrdersResponse>(`/orders/user/${userId}`)
+      .pipe(map(response => response.data.orders));
   }
 
-  createOrder(userId: string, shippingAddress: any, paymentMethod: any): Observable<Order> {
-    // Create a new order from the cart items
-    const items = this.cartService.items;
-    const totalAmount = this.cartService.totalPrice;
-    
-    // Generate a random order ID
-    const orderId = `ORD-${Math.floor(Math.random() * 1000000)}`;
-    
-    const newOrder: Order = {
-      id: orderId,
-      userId,
-      items: items.map(item => ({
-        product: item.product,
-        quantity: item.quantity,
-        price: item.product.price * item.quantity
-      })),
-      totalAmount,
-      status: 'pending',
-      createdAt: new Date().toISOString(),
-      shippingAddress,
-      paymentMethod
-    };
-    
-    // In a real app, this would be sent to a backend API
-    orders.push(newOrder);
-    
-    // Clear the cart after creating the order
-    this.cartService.clearCart();
-    
-    return of(newOrder);
+  // Get a specific order by ID
+  getOrder(orderId: string): Observable<Order> {
+    return this.apiService.get<OrderResponse>(`/orders/${orderId}`)
+      .pipe(map(response => response.data.order));
+  }
+
+  // Alias for getOrder to maintain compatibility
+  getOrderById(orderId: string): Observable<Order> {
+    return this.getOrder(orderId);
+  }
+
+  // Cancel an order
+  cancelOrder(orderId: string): Observable<Order> {
+    return this.apiService.patch<OrderResponse>(`/orders/${orderId}/status`, { 
+      status: 'cancelled' 
+    }).pipe(map(response => response.data.order));
+  }
+
+  // Admin: Get all orders
+  getAllOrders(params: any = {}): Observable<{orders: Order[], pagination: any}> {
+    return this.apiService.get<{
+      success: boolean;
+      results: number;
+      totalPages: number;
+      currentPage: number;
+      data: { orders: Order[] };
+    }>('/orders', params).pipe(
+      map(response => ({
+        orders: response.data.orders,
+        pagination: {
+          totalPages: response.totalPages,
+          currentPage: response.currentPage,
+          totalResults: response.results
+        }
+      }))
+    );
+  }
+
+  // Admin: Update order status
+  updateOrderStatus(orderId: string, status: string): Observable<Order> {
+    return this.apiService.patch<OrderResponse>(`/orders/${orderId}/status`, { status })
+      .pipe(map(response => response.data.order));
   }
 }

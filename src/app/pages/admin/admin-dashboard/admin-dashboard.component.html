@@ -1,0 +1,109 @@
+<div class="admin-dashboard">
+  <h1>Admin Dashboard</h1>
+
+  <div class="stats-container">
+    <div class="stat-card">
+      <h2>{{ stats?.users || 0 }}</h2>
+      <p>Total Users</p>
+    </div>
+    <div class="stat-card">
+      <h2>{{ stats?.products || 0 }}</h2>
+      <p>Total Products</p>
+    </div>
+    <div class="stat-card">
+      <h2>{{ stats?.orders || 0 }}</h2>
+      <p>Total Orders</p>
+    </div>
+    <div class="stat-card">
+      <h2>${{ stats?.revenue?.toFixed(2) || '0.00' }}</h2>
+      <p>Total Revenue</p>
+    </div>
+  </div>
+
+  <div class="admin-section">
+    <h2>Recent Orders</h2>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of recentOrders">
+            <td>{{ order._id }}</td>
+            <td>{{ order.user.name }}</td>
+            <td>{{ order.createdAt | date }}</td>
+            <td>${{ order.totalAmount?.toFixed(2) }}</td>
+            <td>
+              <span class="status-badge" [ngClass]="order.status">
+                {{ order.status }}
+              </span>
+            </td>
+            <td>
+              <a [routerLink]="['/admin/orders', order._id]">View</a>
+            </td>
+          </tr>
+          <tr *ngIf="recentOrders.length === 0">
+            <td colspan="6">No recent orders</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="admin-section">
+    <h2>Low Stock Products</h2>
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Stock</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let product of lowStockProducts">
+            <td>
+              <div class="product-cell">
+                <img [src]="product.image" [alt]="product.name" />
+                <span>{{ product.name }}</span>
+              </div>
+            </td>
+            <td>{{ product.category[0] }}</td>
+            <td>${{ product.price?.toFixed(2) }}</td>
+            <td>
+              <span class="stock-badge" [ngClass]="product.stock < 5 ? 'critical' : 'low'">
+                {{ product.stock }}
+              </span>
+            </td>
+            <td>
+              <a [routerLink]="['/admin/products', product._id, 'edit']">Edit</a>
+            </td>
+          </tr>
+          <tr *ngIf="lowStockProducts.length === 0">
+            <td colspan="5">No low stock products</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="admin-actions">
+    <h2>Quick Actions</h2>
+    <div class="action-buttons">
+      <a routerLink="/admin/products/new" class="btn primary">Add New Product</a>
+      <a routerLink="/admin/orders" class="btn secondary">View All Orders</a>
+      <a routerLink="/admin/products" class="btn secondary">Manage Products</a>
+      <a routerLink="/admin/users" class="btn secondary">Manage Users</a>
+    </div>
+  </div>
+</div> 

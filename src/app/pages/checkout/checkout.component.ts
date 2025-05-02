@@ -505,11 +505,10 @@ export class CheckoutComponent implements OnInit {
     };
     
     // Create order
-    this.orderService.createOrder(
-      this.authService.currentUser.id,
+    this.orderService.createOrder({
       shippingAddress,
       paymentMethod
-    ).subscribe({
+    }).subscribe({
       next: (order) => {
         this.isPlacingOrder = false;
         this.toastService.success('Order Placed', 'Your order has been successfully placed!');
